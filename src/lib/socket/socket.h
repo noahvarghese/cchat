@@ -16,13 +16,13 @@
 */
 typedef struct socket_t {
     int fd;
-    void (*bind_address)(socket_t *self, address_t *address);
+    void (*bind)(socket_t *self, address_t *address);
     void (*connect_to)(socket_t *self, address_t *host);
-    void (*start_listening)(socket_t *self, int connection_limit);
-    void (*send_data_to)(void);
-    void (*send_data_to_all)(void);
-    char *(*receive_data_from)(void);
-    char *(*receive_data_from_any)(void);
+    void (*listen)(socket_t *self, int connection_limit);
+    void (*send_to)(socket_t *self, const char data[], struct sockaddr *destination);
+    void (*send)(socket_t *self, const char data[]);
+    char *(*receive_from)(socket_t *self, struct sockaddr *source);
+    char *(*receive)(socket_t *self);
     struct sockaddr *(*accept_connection)(socket_t *self);
 } socket_t;
 

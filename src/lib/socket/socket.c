@@ -18,6 +18,15 @@ static void send_data_to(socket_t *self, const char data[], struct sockaddr *des
     }
 };
 
+static void send_data(socket_t *self, const char data[]){
+    int result;
+    result = send(self->fd, data, strlen(data), 0);
+    if (result == -1) {
+        perror("Failed to send data");
+        exit(1);
+    }
+};
+
 static char *receive_data_from(socket_t *self, struct sockaddr *source) {
     char *data;
     int size;
@@ -29,6 +38,32 @@ static char *receive_data_from(socket_t *self, struct sockaddr *source) {
     }
 
     size = recvfrom(self->fd, data, MAX_PACKET_SIZE, 0, source, sizeof(struct sockaddr));
+    if (size == -1) {
+        perror("Unable to receive data");
+        exit(1);
+    }
+    
+    // Make sure data is null terminated
+    if (data[size] == "\0" || data[size] == NULL || data == 0) {
+        return data;
+    }
+
+    data[size] = "\0";
+
+    return data;
+};
+
+static char *receive_data(socket_t *self) {
+    char *data;
+    int size;
+
+    data = malloc(MAX_PACKET_SIZE);
+    if (data == NULL) {
+        perror("Unable to allocate memory to receive message into");
+        exit(1);
+    }
+
+    size = recv(self->fd, data, MAX_PACKET_SIZE, 0);
     if (size == -1) {
         perror("Unable to receive data");
         exit(1);
@@ -116,12 +151,14 @@ socket_t *new_socket(address_t *address, address_family ip_version) {
     }
 
     self->fd = socket_fd;
-    self->start_listening = &start_listening;
-    self->accept_connection = &accept_connection;
-    self->send_data_to = &send_data_to;
-    self->receive_data_from = &receive_data_from;
-    self->bind_address = &bind_address;
+    self->bind = &bind_address;
     self->connect_to = &connect_to;
+    self->listen = &start_listening;
+    self->send_to = &send_data_to;
+    self->send = &send_data;
+    self->receive_from = &receive_data_from;
+    self->receive = &receive_data;
+    self->accept_connection = &accept_connection;
 
     return self;
 }

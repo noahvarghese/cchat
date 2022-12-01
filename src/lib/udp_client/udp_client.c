@@ -1,5 +1,15 @@
 #include "./udp_client.h"
 
+static char *receive_data_from(udp_client_t *self, struct sockaddr *server) {
+    char *data;
+    data = self->socket->receive_from(self->socket, server);
+    return data;
+}
+
+static void send_data_to(udp_client_t *self, char data[], struct sockaddr *server) {
+    self->socket->send_to(self->socket, data, server);
+}
+
 udp_client_t *new_udp_client(const char host[], const char port[], address_family ip_version) {
     int result;
     address_t *address;
@@ -17,8 +27,8 @@ udp_client_t *new_udp_client(const char host[], const char port[], address_famil
 
     self->host = address;
     self->socket = socket;
-    self->receive = &socket->receive_data_from;
-    self->send = &socket->send_data_to;
+    self->receive_from = &receive_data_from;
+    self->send_to = &send_data_to;
 
     return self;
 }
