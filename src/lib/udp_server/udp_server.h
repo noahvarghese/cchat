@@ -7,8 +7,8 @@
 
 typedef struct udp_server_t {
     socket_t *socket;
-    void (*send_to)(udp_server_t *self, char data[], struct sockaddr *client);
-    char *(*receive_from)(udp_server_t *self, struct sockaddr *client);
+    void (*send_to)(struct udp_server_t *self, char data[], struct sockaddr *client);
+    char *(*receive_from)(struct udp_server_t *self, struct sockaddr *client);
 } udp_server_t;
 
 udp_server_t *new_udp_server(const char host[], const char port[], address_family ip_version);

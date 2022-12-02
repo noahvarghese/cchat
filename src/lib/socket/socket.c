@@ -30,6 +30,8 @@ static void send_data(socket_t *self, const char data[]){
 static char *receive_data_from(socket_t *self, struct sockaddr *source) {
     char *data;
     int size;
+    socklen_t address_size;
+    address_size = sizeof(struct sockaddr);
 
     data = malloc(MAX_PACKET_SIZE);
     if (data == NULL) {
@@ -37,18 +39,18 @@ static char *receive_data_from(socket_t *self, struct sockaddr *source) {
         exit(1);
     }
 
-    size = recvfrom(self->fd, data, MAX_PACKET_SIZE, 0, source, sizeof(struct sockaddr));
+    size = recvfrom(self->fd, data, MAX_PACKET_SIZE, 0, source, &address_size);
     if (size == -1) {
         perror("Unable to receive data");
         exit(1);
     }
     
     // Make sure data is null terminated
-    if (data[size] == "\0" || data[size] == NULL || data == 0) {
+    if (data[size] == '\0' || data == 0) {
         return data;
     }
 
-    data[size] = "\0";
+    data[size] = '\0';
 
     return data;
 };
@@ -70,11 +72,11 @@ static char *receive_data(socket_t *self) {
     }
     
     // Make sure data is null terminated
-    if (data[size] == "\0" || data[size] == NULL || data == 0) {
+    if (data[size] == '\0' || data == 0) {
         return data;
     }
 
-    data[size] = "\0";
+    data[size] = '\0';
 
     return data;
 };
@@ -82,9 +84,17 @@ static char *receive_data(socket_t *self) {
 static struct sockaddr *accept_connection(socket_t *self) {
     int result;
     struct sockaddr *address;
+    socklen_t address_size;
 
-    result = accept(self->fd, address, sizeof(struct sockaddr));
+    address_size = sizeof(struct sockaddr);
+    address = (struct sockaddr *)malloc(sizeof(struct sockaddr));
+    if (address == NULL)
+    {
+        perror("Failed to allocate memory for connecting address");
+        exit(1);
+    }
 
+    result = accept(self->fd, address, &address_size);
     if (result == -1) {
        perror("Failed to accept incoming connections");
        exit(1);
@@ -131,7 +141,7 @@ static void configure_dualstack(int socket_fd) {
 */
 socket_t *new_socket(address_t *address, address_family ip_version) {
     socket_t *self;
-    int socket_fd, result;
+    int socket_fd;
 
     socket_fd = socket(address->ai_family, address->ai_socktype, address->ai_protocol);
 
@@ -141,7 +151,7 @@ socket_t *new_socket(address_t *address, address_family ip_version) {
     }
 
     if (ip_version == DUALSTACK) {
-        configure_dualstack(socket);
+        configure_dualstack(socket_fd);
     }
 
     self = malloc(sizeof(socket_t));

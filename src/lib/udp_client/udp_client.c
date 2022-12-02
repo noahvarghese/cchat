@@ -11,7 +11,6 @@ static void send_data_to(udp_client_t *self, char data[], struct sockaddr *serve
 }
 
 udp_client_t *new_udp_client(const char host[], const char port[], address_family ip_version) {
-    int result;
     address_t *address;
     socket_t *socket;
     udp_client_t *self;

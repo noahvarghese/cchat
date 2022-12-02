@@ -4,7 +4,7 @@ static void send_data_to(udp_server_t *self, char data[], struct sockaddr *clien
     self->socket->send_to(self->socket, data, client);
 }
 
-static void receive_data_from(udp_server_t *self, struct sockaddr *client) {
+static char *receive_data_from(udp_server_t *self, struct sockaddr *client) {
     char *data;
     data = self->socket->receive_from(self->socket, client);
     return data;

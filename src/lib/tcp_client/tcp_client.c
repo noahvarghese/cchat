@@ -1,10 +1,10 @@
 #include "./tcp_client.h"
 
-static void send_data(tcp_client_t *self, char data[]) {
+static void send_data(tcp_client_t *self, const char data[]) {
     self->socket->send(self->socket, data);
 }
 
-static void send_data_to(tcp_client_t *self, char data[], struct sockaddr *server) {
+static void send_data_to(tcp_client_t *self, const char data[], struct sockaddr *server) {
     self->socket->send_to(self->socket, data, server);
 }
 
@@ -21,7 +21,6 @@ static char *receive_data_from(tcp_client_t *self, struct sockaddr *server) {
 }
 
 tcp_client_t *new_tcp_client(const char host[], const char port[], address_family ip_version) {
-    int result;
     address_t *address;
     socket_t *socket;
     tcp_client_t *self;
@@ -43,7 +42,7 @@ tcp_client_t *new_tcp_client(const char host[], const char port[], address_famil
     self->send = &send_data;
     self->send_to = &send_data_to;
 
-    free_address(host);
+    free_address(address);
 
     return self;
 }

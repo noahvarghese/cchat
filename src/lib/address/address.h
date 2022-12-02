@@ -1,6 +1,9 @@
 #ifndef ADDRESS_H
 #define ADDRESS_H
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <netdb.h>
 
 typedef struct addrinfo address_t;
